@@ -10,6 +10,7 @@ import loginImg from "../assets/login-img.png";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,24 +30,26 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       await axios.post(
         "https://hr-managment.up.railway.app/api/auth/register",
         formData,
         { withCredentials: true }
       );
-      alert("Registration successful!");
       navigate("/login");
     } catch (error) {
       console.error("Registration error:", error.response?.data || error.message);
       alert("Registration failed!");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <AuthLayout image={loginImg} title="Manage" subtitle="HR Flow">
-      <div className="w-full max-w-md mx-auto">
-        <h2 className="text-3xl font-bold mb-2 text-center">Sign up</h2>
+      <div className="w-full max-w-md mx-auto px-4 sm:px-0">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-center">Sign up</h2>
         <p className="text-gray-500 text-center mb-6">Create your account</p>
 
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto max-h-[70vh] pr-1">
@@ -143,9 +146,22 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition duration-300"
+            disabled={isSubmitting}
+            className={`w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition duration-300 flex justify-center items-center ${
+              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+            }`}
           >
-            Sign up
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Signing up...
+              </>
+            ) : (
+              "Sign up"
+            )}
           </button>
         </form>
 
